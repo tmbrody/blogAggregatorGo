@@ -52,6 +52,7 @@ func main() {
 	r_handlers.Get("/readiness", readinessHandler)
 	r_handlers.Get("/err", errorHandler)
 
+	r_handlers.Get("/users", withDB(getUserHandler, apiCfg.DB))
 	r_handlers.Post("/users", withDB(createUserHandler, apiCfg.DB))
 
 	r.Use(cors.Handler(cors.Options{
