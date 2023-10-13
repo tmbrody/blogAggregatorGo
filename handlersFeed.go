@@ -45,7 +45,32 @@ func (apiCfg *apiConfig) createFeedHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	respondWithJSON(w, http.StatusCreated, feed)
+	feedFollowID, err := uuid.NewUUID()
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Unable to generate feed follow ID")
+		return
+	}
+
+	ff_args := database.CreateFeedFollowParams{
+		ID:        feedFollowID,
+		FeedID:    feedID,
+		UserID:    apiCfg.User.ID,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+	}
+
+	feedFollow, err := db.CreateFeedFollow(ctx, ff_args)
+	if err != nil {
+		respondWithError(w, http.StatusInternalServerError, "Unable to create new feed follow")
+		return
+	}
+
+	response := map[string]interface{}{
+		"feed":        feed,
+		"feed_follow": feedFollow,
+	}
+
+	respondWithJSON(w, http.StatusCreated, response)
 }
 
 func (apiCfg *apiConfig) getFeedsHandler(w http.ResponseWriter, r *http.Request) {

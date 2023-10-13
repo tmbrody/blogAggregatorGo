@@ -59,6 +59,10 @@ func main() {
 	r_handlers.Get("/feeds", withDB(apiCfg.getFeedsHandler, apiCfg.DB))
 	r_handlers.Post("/feeds", apiCfg.middlewareAuth(apiCfg.createFeedHandler, apiCfg.DB))
 
+	r_handlers.Get("/feed_follows", apiCfg.middlewareAuth(apiCfg.getUserFeedFollowsHandler, apiCfg.DB))
+	r_handlers.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.createFeedFollowHandler, apiCfg.DB))
+	r_handlers.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.deleteFeedFollowHandler, apiCfg.DB))
+
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},

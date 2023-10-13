@@ -1,6 +1,9 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 func extractTokenFromHeader(r *http.Request) string {
 	authHeader := r.Header.Get("Authorization")
@@ -8,8 +11,11 @@ func extractTokenFromHeader(r *http.Request) string {
 		return ""
 	}
 
-	if len(authHeader) > 7 && (authHeader[:7] == "Bearer " || authHeader[:7] == "ApiKey ") {
-		return authHeader[7:]
+	if len(authHeader) > 7 && strings.Contains(authHeader, " ") {
+		parts := strings.SplitN(authHeader, " ", 2)
+		if len(parts) == 2 {
+			return parts[1]
+		}
 	}
 	return ""
 }
