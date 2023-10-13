@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -16,7 +15,9 @@ import (
 )
 
 type apiConfig struct {
-	DB *database.Queries
+	DB   *database.Queries
+	User database.User
+	Feed database.Feed
 }
 
 type contextKey string
@@ -52,8 +53,11 @@ func main() {
 	r_handlers.Get("/readiness", readinessHandler)
 	r_handlers.Get("/err", errorHandler)
 
-	r_handlers.Get("/users", withDB(getUserHandler, apiCfg.DB))
+	r_handlers.Get("/users", apiCfg.middlewareAuth(apiCfg.getUserHandler, apiCfg.DB))
 	r_handlers.Post("/users", withDB(createUserHandler, apiCfg.DB))
+
+	r_handlers.Get("/feeds", withDB(apiCfg.getFeedsHandler, apiCfg.DB))
+	r_handlers.Post("/feeds", apiCfg.middlewareAuth(apiCfg.createFeedHandler, apiCfg.DB))
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
@@ -76,12 +80,5 @@ func main() {
 	err = server.ListenAndServe()
 	if err != nil {
 		panic(err)
-	}
-}
-
-func withDB(next http.HandlerFunc, db *database.Queries) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), dbContextKey, db)
-		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

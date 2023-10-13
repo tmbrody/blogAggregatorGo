@@ -45,21 +45,6 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusCreated, user)
 }
 
-func getUserHandler(w http.ResponseWriter, r *http.Request) {
-	apiKey := extractTokenFromHeader(r)
-	if apiKey == "" {
-		respondWithError(w, http.StatusUnauthorized, "API key is invalid or missing")
-		return
-	}
-
-	ctx := r.Context()
-	db, _ := ctx.Value(dbContextKey).(*database.Queries)
-
-	user, err := db.GetUserByApiKey(ctx, apiKey)
-	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Unable to find user")
-		return
-	}
-
-	respondWithJSON(w, http.StatusOK, user)
+func (apiCfg *apiConfig) getUserHandler(w http.ResponseWriter, r *http.Request) {
+	respondWithJSON(w, http.StatusOK, apiCfg.User)
 }
