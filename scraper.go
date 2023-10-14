@@ -9,18 +9,17 @@ import (
 	"github.com/tmbrody/blogAggregatorGo/internal/database"
 )
 
-func scrapeWorker(dbQueries *database.Queries) {
+func (apiCfg *apiConfig) scrapeWorker(dbQueries *database.Queries) {
 	sleepDuration := 1 * time.Minute
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	feedChannel := make(chan string)
-	fmt.Println("Starting feed worker")
 
 	var wg sync.WaitGroup
 	wg.Add(1)
-	go feedWorker(ctx, feedChannel, &wg)
+	go feedWorker(ctx, feedChannel, &wg, apiCfg)
 
 	for {
 		feeds, err := dbQueries.GetNextFeedsToFetch(ctx)
@@ -38,11 +37,6 @@ func scrapeWorker(dbQueries *database.Queries) {
 				break
 			}
 		}
-
-		time.Sleep(3 * time.Second)
-
-		fmt.Println("The next set of feeds will be fetched after 60 seconds...")
-		fmt.Println()
 
 		time.Sleep(sleepDuration)
 	}

@@ -27,6 +27,7 @@ type Item struct {
 	Title       CDATA  `xml:"title"`
 	Description string `xml:"description"`
 	Link        string `xml:"link"`
+	PubDate     string `xml:"pubDate"`
 }
 
 // Function to fetch data from an RSS feed URL and return it as a Go struct

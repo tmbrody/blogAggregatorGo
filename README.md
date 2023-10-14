@@ -1,3 +1,3 @@
-# blogAggregatorGo
+# Blog Aggregator API (blogAggregatorGo)
 
-An application that will be designed to monitor and present the most recent articles sourced from various blogs and news platforms.
+This backend API enables users to add and follow their favorite RSS feeds. Each feed's posts are stored in a PostgreSQL database, facilitating access to the most recent posts from followed feeds through various HTTP handlers.

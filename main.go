@@ -17,6 +17,7 @@ import (
 type apiConfig struct {
 	DB   *database.Queries
 	User database.User
+	Feed database.Feed
 }
 
 type contextKey string
@@ -62,6 +63,8 @@ func main() {
 	r_handlers.Post("/feed_follows", apiCfg.middlewareAuth(apiCfg.createFeedFollowHandler, apiCfg.DB))
 	r_handlers.Delete("/feed_follows/{feedFollowID}", apiCfg.middlewareAuth(apiCfg.deleteFeedFollowHandler, apiCfg.DB))
 
+	r_handlers.Get("/posts", apiCfg.middlewareAuth(apiCfg.getPostsHandler, apiCfg.DB))
+
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS", "PUT", "DELETE"},
@@ -78,7 +81,8 @@ func main() {
 		Handler: r,
 	}
 
-	go scrapeWorker(dbQueries)
+	// Use a goroutine to run the scrapeWorker
+	go apiCfg.scrapeWorker(dbQueries)
 
 	log.Printf("Serving files on port: %s", port)
 
