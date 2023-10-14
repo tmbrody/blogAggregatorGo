@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"time"
@@ -30,13 +31,25 @@ func (apiCfg *apiConfig) createFeedHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	lastFetchedTime := time.Now()
+
+	var lastFetchedAt sql.NullTime
+
+	if !lastFetchedTime.IsZero() {
+		lastFetchedAt.Time = lastFetchedTime
+		lastFetchedAt.Valid = true
+	} else {
+		lastFetchedAt.Valid = false
+	}
+
 	args := database.CreateFeedParams{
-		ID:        feedID,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
-		Name:      params.Name,
-		Url:       params.Url,
-		UserID:    apiCfg.User.ID,
+		ID:            feedID,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
+		Name:          params.Name,
+		Url:           params.Url,
+		UserID:        apiCfg.User.ID,
+		LastFetchedAt: lastFetchedAt,
 	}
 
 	feed, err := db.CreateFeed(ctx, args)
@@ -55,8 +68,8 @@ func (apiCfg *apiConfig) createFeedHandler(w http.ResponseWriter, r *http.Reques
 		ID:        feedFollowID,
 		FeedID:    feedID,
 		UserID:    apiCfg.User.ID,
-		CreatedAt: time.Now().UTC(),
-		UpdatedAt: time.Now().UTC(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	feedFollow, err := db.CreateFeedFollow(ctx, ff_args)

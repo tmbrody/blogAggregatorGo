@@ -17,7 +17,6 @@ import (
 type apiConfig struct {
 	DB   *database.Queries
 	User database.User
-	Feed database.Feed
 }
 
 type contextKey string
@@ -78,6 +77,8 @@ func main() {
 		Addr:    ":" + port,
 		Handler: r,
 	}
+
+	go scrapeWorker(dbQueries)
 
 	log.Printf("Serving files on port: %s", port)
 
